@@ -1,0 +1,38 @@
+﻿@page
+@model ProductManagementRazorPages.Pages.Cosmetics.IndexModel
+@{
+    ViewData["Title"] = "Cosmetics List";
+}
+
+<h2>Cosmetics</h2>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Skin Type</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Cosmetics)
+        {
+            <tr>
+                <td>@item.CosmeticId</td>
+                <td>@item.CosmeticName</td>
+                <td>@item.SkinType</td>
+                <td>@item.DollarPrice</td>
+                <td>@item.CategoryId</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@item.CosmeticId">Edit</a> |
+                    <a asp-page="Delete" asp-route-id="@item.CosmeticId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-page="Create">Add New Cosmetic</a>

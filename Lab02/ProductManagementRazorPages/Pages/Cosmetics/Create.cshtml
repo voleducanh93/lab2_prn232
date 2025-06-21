@@ -1,0 +1,41 @@
+﻿@page
+@model ProductManagementRazorPages.Pages.Cosmetics.CreateModel
+@{
+    ViewData["Title"] = "Create Cosmetic";
+}
+
+<h2>Create New Cosmetic</h2>
+
+<form method="post">
+    <div>
+        <label asp-for="Cosmetic.CosmeticName">Name</label>
+        <input asp-for="Cosmetic.CosmeticName" />
+    </div>
+    <div>
+        <label asp-for="Cosmetic.SkinType">Skin Type</label>
+        <input asp-for="Cosmetic.SkinType" />
+    </div>
+    <div>
+        <label asp-for="Cosmetic.ExpirationDate">Expiration Date</label>
+        <input asp-for="Cosmetic.ExpirationDate" />
+    </div>
+    <div>
+        <label asp-for="Cosmetic.CosmeticSize">Size</label>
+        <input asp-for="Cosmetic.CosmeticSize" />
+    </div>
+    <div>
+        <label asp-for="Cosmetic.DollarPrice">Price</label>
+        <input asp-for="Cosmetic.DollarPrice" />
+    </div>
+    <div>
+        <label asp-for="Cosmetic.CategoryId">Category ID</label>
+        <input asp-for="Cosmetic.CategoryId" />
+    </div>
+    <button type="submit">Create</button>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <p style="color:red">@Model.ErrorMessage</p>
+    }
+</form>
+<a asp-page="Index">Back to List</a>
