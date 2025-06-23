@@ -41,17 +41,36 @@ namespace ProductManagementRazorPages.Pages
             var loginResult = JsonSerializer.Deserialize<LoginResponse>(content,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            var claims = new List<Claim>
+            var cookieOptions = new CookieOptions
             {
-                new Claim(ClaimTypes.Email, Email),
-                new Claim(ClaimTypes.Role, loginResult.Role),
-                new Claim("Token", loginResult.Token)
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
             };
 
-            var identity = new ClaimsIdentity(claims, "CookieAuth");
-            var principal = new ClaimsPrincipal(identity);
+            Response.Cookies.Append("Token", loginResult.Token, cookieOptions);
+            Response.Cookies.Append("Role", loginResult.Role, cookieOptions);
+            //var claims = new List<Claim>
+            //{
+            //    new Claim(ClaimTypes.Email, Email),
+            //    new Claim(ClaimTypes.Role, loginResult.Role),
+            //    new Claim("Token", loginResult.Token)
+            //};
 
-            await HttpContext.SignInAsync("CookieAuth", principal);
+            //var identity = new ClaimsIdentity(claims, "CookieAuth");
+            //var principal = new ClaimsPrincipal(identity);
+
+            //await HttpContext.SignInAsync("CookieAuth", principal);
+
+            //HttpContext.Response.Cookies.Append("token", loginResult.Token, new CookieOptions
+            //{
+            //    HttpOnly = true,         
+            //    Secure = true,          
+            //    SameSite = SameSiteMode.Strict,
+            //    Expires = DateTimeOffset.UtcNow.AddHours(1)
+            //});
+
 
             return RedirectToPage("/Cosmetics/Index");
         }
