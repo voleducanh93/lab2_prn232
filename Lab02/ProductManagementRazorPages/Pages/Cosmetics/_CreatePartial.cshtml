@@ -1,0 +1,58 @@
+﻿@model ProductManagementRazorPages.ViewModel.CosmeticCreateViewModel
+@{
+    Layout = null;
+}
+
+<form id="createForm">
+    @Html.AntiForgeryToken()
+    <div class="modal-header">
+        <h5 class="modal-title">Create Cosmetic</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3">
+            <label asp-for="Cosmetic.CosmeticName" class="form-label"></label>
+            <input asp-for="Cosmetic.CosmeticName" class="form-control" />
+            <span asp-validation-for="Cosmetic.CosmeticName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Cosmetic.SkinType" class="form-label"></label>
+            <input asp-for="Cosmetic.SkinType" class="form-control" />
+            <span asp-validation-for="Cosmetic.SkinType" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Cosmetic.ExpirationDate" class="form-label"></label>
+            <input asp-for="Cosmetic.ExpirationDate" class="form-control" placeholder="e.g. 24 months after opening" />
+            <span asp-validation-for="Cosmetic.ExpirationDate" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Cosmetic.CosmeticSize" class="form-label"></label>
+            <input asp-for="Cosmetic.CosmeticSize" class="form-control" placeholder="e.g. 355 ml" />
+            <small class="text-muted">Enter volume or quantity (e.g. "355 ml", "12 fl oz")</small>
+            <span asp-validation-for="Cosmetic.CosmeticSize" class="text-danger"></span>
+        </div>
+
+
+        <div class="mb-3">
+            <label asp-for="Cosmetic.DollarPrice" class="form-label"></label>
+            <input asp-for="Cosmetic.DollarPrice" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="Cosmetic.DollarPrice" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Cosmetic.CategoryId" class="form-label"></label>
+            <select asp-for="Cosmetic.CategoryId" class="form-select"
+                    asp-items="@(new SelectList(Model.AvailableCategories, "Value", "Text"))">
+                <option value="">-- Select Category --</option>
+            </select>
+            <span asp-validation-for="Cosmetic.CategoryId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Create</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>

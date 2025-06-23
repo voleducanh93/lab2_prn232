@@ -17,9 +17,20 @@ namespace ProductManagementRazorPages.Pages.Cosmetics
             _config = config;
         }
         public PagedCosmeticsViewModel ViewModel { get; set; } = new();
+        public bool CanManage { get; set; } = false;
 
-        public async Task OnGetAsync(string? searchTerm, int pageIndex = 1, int pageSize = 4)
+        public async Task<IActionResult> OnGetAsync(string? searchTerm, int pageIndex = 1, int pageSize = 4)
         {
+            int roleId = Convert.ToInt32(HttpContext.Request.Cookies["Role"]);
+            CanManage = (roleId == 1);
+            if (roleId == 2)
+            {
+                return RedirectToPage("/Unauthorized");
+            }
+            if (roleId < 1 || roleId > 4)
+            {
+                return RedirectToPage("/Unauthorized"); 
+            }
             var token = HttpContext.Request.Cookies["token"];
 
             string baseUrl = _config["ApiBaseUrl"];
@@ -28,7 +39,7 @@ namespace ProductManagementRazorPages.Pages.Cosmetics
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.GetAsync($"{baseUrl}/api/CosmeticInformations");
-            if (!response.IsSuccessStatusCode) return;
+            if (!response.IsSuccessStatusCode) return Page(); ;
 
             var json = await response.Content.ReadAsStringAsync();
             var Cosmetics = JsonSerializer.Deserialize<List<CosmeticInformation>>(json,
@@ -56,6 +67,7 @@ namespace ProductManagementRazorPages.Pages.Cosmetics
                 TotalCount = totalCount,
                 SearchTerm = searchTerm
             };
+            return Page();
         }
 
     }

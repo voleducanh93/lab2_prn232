@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using ProductManagementRazorPages.ViewModel;
+using BusinessObjects.Models;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 
 namespace ProductManagementRazorPages.Pages.Cosmetics
@@ -16,52 +17,80 @@ namespace ProductManagementRazorPages.Pages.Cosmetics
         }
 
         [BindProperty]
-        public CosmeticInput Cosmetic { get; set; }
+        public CosmeticEditViewModel ViewModel { get; set; } = new();
 
-        [BindProperty(SupportsGet = true)]
-        public string Id { get; set; }
-
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string id)
         {
             var token = HttpContext.Request.Cookies["token"];
-            string baseUrl = _config["ApiBaseUrl"];
-
+            var baseUrl = _config["ApiBaseUrl"];
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.GetAsync($"{baseUrl}/api/CosmeticInformations/{Id}");
-            if (!response.IsSuccessStatusCode) return RedirectToPage("Index");
+            var response = await client.GetAsync($"{baseUrl}/api/CosmeticInformations/{id}");
+            if (!response.IsSuccessStatusCode) return NotFound();
 
             var json = await response.Content.ReadAsStringAsync();
-            Cosmetic = JsonSerializer.Deserialize<CosmeticInput>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var cosmetic = JsonSerializer.Deserialize<CosmeticInformation>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            return Page();
+            if (cosmetic == null) return NotFound();
+
+            var categories = await LoadCategories();
+
+            ViewModel = new CosmeticEditViewModel
+            {
+                Cosmetic = cosmetic,
+                AvailableCategories = categories
+            };
+
+            return Partial("_EditPartial", ViewModel);
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var token = HttpContext.Request.Cookies["token"];
-            string baseUrl = _config["ApiBaseUrl"];
+            if (!ModelState.IsValid)
+            {
+                ViewModel.AvailableCategories = await LoadCategories();
+                return Partial("_EditPartial", ViewModel);
+            }
 
+            var token = HttpContext.Request.Cookies["token"];
+            var baseUrl = _config["ApiBaseUrl"];
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var json = JsonSerializer.Serialize(Cosmetic);
-            var response = await client.PutAsync($"{baseUrl}/api/CosmeticInformations/{Id}",
-                new StringContent(json, Encoding.UTF8, "application/json"));
+            var content = new StringContent(JsonSerializer.Serialize(ViewModel.Cosmetic), System.Text.Encoding.UTF8, "application/json");
+            var response = await client.PutAsync($"{baseUrl}/api/CosmeticInformations/{ViewModel.Cosmetic.CosmeticId}", content);
 
-            return RedirectToPage("Index");
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to update cosmetic.");
+                ViewModel.AvailableCategories = await LoadCategories();
+                return Partial("_EditPartial", ViewModel);
+            }
+
+            return new JsonResult(new { success = true });
         }
 
-        public class CosmeticInput
+        private async Task<List<CategoryOption>> LoadCategories()
         {
-            public string CosmeticId { get; set; }
-            public string CosmeticName { get; set; }
-            public string SkinType { get; set; }
-            public string ExpirationDate { get; set; }
-            public string CosmeticSize { get; set; }
-            public decimal DollarPrice { get; set; }
-            public string CategoryId { get; set; }
+            var token = HttpContext.Request.Cookies["token"];
+            var baseUrl = _config["ApiBaseUrl"];
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync($"{baseUrl}/api/CosmeticCategories");
+            if (!response.IsSuccessStatusCode) return new();
+
+            var json = await response.Content.ReadAsStringAsync();
+            var categories = JsonSerializer.Deserialize<List<CosmeticCategory>>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new();
+
+            return categories.Select(c => new CategoryOption
+            {
+                Value = c.CategoryId,
+                Text = c.CategoryName
+            }).ToList();
         }
     }
 }

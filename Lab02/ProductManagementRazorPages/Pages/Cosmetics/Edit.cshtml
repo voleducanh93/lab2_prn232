@@ -1,19 +1,7 @@
-﻿@page "{id}"
+﻿@page "{id?}"
 @model ProductManagementRazorPages.Pages.Cosmetics.EditModel
 @{
-    ViewData["Title"] = "Edit Cosmetic";
+    Layout = null;
 }
 
-<h2>Edit Cosmetic</h2>
-
-<form method="post">
-    <input type="hidden" asp-for="Id" />
-    <div><label asp-for="Cosmetic.CosmeticName" /> <input asp-for="Cosmetic.CosmeticName" /></div>
-    <div><label asp-for="Cosmetic.SkinType" /> <input asp-for="Cosmetic.SkinType" /></div>
-    <div><label asp-for="Cosmetic.ExpirationDate" /> <input asp-for="Cosmetic.ExpirationDate" /></div>
-    <div><label asp-for="Cosmetic.CosmeticSize" /> <input asp-for="Cosmetic.CosmeticSize" /></div>
-    <div><label asp-for="Cosmetic.DollarPrice" /> <input asp-for="Cosmetic.DollarPrice" /></div>
-    <div><label asp-for="Cosmetic.CategoryId" /> <input asp-for="Cosmetic.CategoryId" /></div>
-    <button type="submit">Save</button>
-</form>
-<a asp-page="Index">Back</a>
+@await Html.PartialAsync("_EditPartial", Model.ViewModel)

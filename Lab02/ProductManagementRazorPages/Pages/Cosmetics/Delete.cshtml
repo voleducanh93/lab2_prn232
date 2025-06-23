@@ -1,14 +1,5 @@
-﻿@page "{id}"
+﻿@page 
 @model ProductManagementRazorPages.Pages.Cosmetics.DeleteModel
 @{
-    ViewData["Title"] = "Delete Cosmetic";
+    Layout = null;
 }
-
-<h2>Delete Confirmation</h2>
-<p>Bạn có chắc chắn muốn xóa sản phẩm này?</p>
-
-<form method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit">Delete</button>
-    <a asp-page="Index">Cancel</a>
-</form>

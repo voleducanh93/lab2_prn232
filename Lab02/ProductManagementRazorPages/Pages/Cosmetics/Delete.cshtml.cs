@@ -13,20 +13,22 @@ namespace ProductManagementRazorPages.Pages.Cosmetics
             _config = config;
         }
 
-        [BindProperty(SupportsGet = true)]
-        public string Id { get; set; }
-
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync([FromForm] string id)
         {
             var token = HttpContext.Request.Cookies["token"];
-            string baseUrl = _config["ApiBaseUrl"];
+            var baseUrl = _config["ApiBaseUrl"];
 
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            await client.DeleteAsync($"{baseUrl}/api/CosmeticInformations/{Id}");
+            var response = await client.DeleteAsync($"{baseUrl}/api/CosmeticInformations/{id}");
 
-            return RedirectToPage("Index");
+            if (!response.IsSuccessStatusCode)
+            {
+                return new JsonResult(new { success = false });
+            }
+
+            return new JsonResult(new { success = true });
         }
     }
 }
